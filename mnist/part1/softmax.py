@@ -32,6 +32,13 @@ def compute_probabilities(X, theta, temp_parameter):
         H - (k, n) NumPy array, where each entry H[j][i] is the probability that X[i] is labeled as j
     """
     #YOUR CODE HERE
+    R = np.dot(theta, X.T)/temp_parameter
+    c = np.max(R, axis=0)
+    R = np.exp(R-c)
+    H = R/R.sum(axis=0)
+
+    return H 
+
     raise NotImplementedError
 
 def compute_cost_function(X, Y, theta, lambda_factor, temp_parameter):
@@ -51,6 +58,18 @@ def compute_cost_function(X, Y, theta, lambda_factor, temp_parameter):
         c - the cost value (scalar)
     """
     #YOUR CODE HERE
+    k = theta.shape[0]
+    n = X.shape[0]
+
+    clip_prob_matrix = np.clip(compute_probabilities(X, theta, temp_parameter), 1e-15, 1-1e-15)
+    log_clip_matrix = np.log(clip_prob_matrix)
+
+    M = sparse.coo_matrix(([1]*n, (Y, range(n))), shape = (k,n)).toarray()
+
+    error_term = (-1/n)*np.sum(log_clip_matrix[M == 1]) 
+    reg_term = (lambda_factor/2)*np.linalg.norm(theta)**2
+
+    return error_term + reg_term
     raise NotImplementedError
 
 def run_gradient_descent_iteration(X, Y, theta, alpha, lambda_factor, temp_parameter):
@@ -71,6 +90,18 @@ def run_gradient_descent_iteration(X, Y, theta, alpha, lambda_factor, temp_param
         theta - (k, d) NumPy array that is the final value of parameters theta
     """
     #YOUR CODE HERE
+    grad = np.empty(theta.shape)
+    p = compute_probabilities(X, theta, temp_parameter)
+    J = np.arange(0, theta.shape[0], 1).reshape(theta.shape[0],1)
+    J = (J == Y).astype(float)
+    np.subtract(J, p, out=J)
+    np.dot(J, X, out=grad)
+
+    np.divide(grad, lambda_factor*temp_parameter*X.shape[0], out=grad)
+    np.subtract(theta, grad, out=grad)
+    np.multiply(grad, alpha*lambda_factor, out=grad)
+    np.subtract(theta, grad, out=grad)
+    return grad
     raise NotImplementedError
 
 def update_y(train_y, test_y):
@@ -91,6 +122,10 @@ def update_y(train_y, test_y):
                     for each datapoint in the test set
     """
     #YOUR CODE HERE
+    train_y_mod3 = np.mod(train_y, 3)
+    test_y_mod3 = np.mod(test_y,3)
+    
+    return train_y_mod3, test_y_mod3
     raise NotImplementedError
 
 def compute_test_error_mod3(X, Y, theta, temp_parameter):
