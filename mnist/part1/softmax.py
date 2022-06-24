@@ -144,7 +144,10 @@ def compute_test_error_mod3(X, Y, theta, temp_parameter):
         test_error - the error rate of the classifier (scalar)
     """
     #YOUR CODE HERE
+    predictions = np.mod(get_classification(X, theta, temp_parameter),3)
+    return 1 - (predictions==Y).mean()
     raise NotImplementedError
+
 
 def softmax_regression(X, Y, temp_parameter, alpha, lambda_factor, k, num_iterations):
     """
