@@ -20,6 +20,7 @@ def polynomial_kernel(X, Y, c, p):
             kernel_matrix - (n, m) Numpy array containing the kernel matrix
     """
     # YOUR CODE HERE
+    return np.power(np.add(np.dot(X,Y.T), c), p)
     raise NotImplementedError
 
 
@@ -39,4 +40,7 @@ def rbf_kernel(X, Y, gamma):
             kernel_matrix - (n, m) Numpy array containing the kernel matrix
     """
     # YOUR CODE HERE
+    from sklearn.metrics.pairwise import euclidean_distances
+    
+    return np.exp(np.multiply(-gamma,np.power(euclidean_distances(X,Y),2)))
     raise NotImplementedError
