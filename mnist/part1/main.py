@@ -175,6 +175,10 @@ test_pca = project_onto_PC(test_x, pcs, n_components, feature_means)
 
 # TODO: Train your softmax regression model using (train_pca, train_y)
 #       and evaluate its accuracy on (test_pca, test_y).
+theta, cost_function_history = softmax_regression(train_pca, train_y, temp_parameter=1, alpha=0.3, lambda_factor=1.0e-4, k=10, num_iterations=150)
+test_error = compute_test_error(test_pca, test_y, theta, temp_parameter=1)
+
+print('softmax test_error PCA=', test_error)
 
 
 # TODO: Use the plot_PC function in features.py to produce scatterplot
@@ -198,6 +202,9 @@ plot_images(train_x[1, ])
 
 ## Cubic Kernel ##
 # TODO: Find the 10-dimensional PCA representation of the training and test set
+n_components=10
+train_pca10 = project_onto_PC(train_x, pcs, n_components, feature_means)
+test_pca10 = project_onto_PC(test_x, pcs, n_components, feature_means)
 
 
 # TODO: First fill out cubicFeatures() function in features.py as the below code requires it.
@@ -210,3 +217,30 @@ test_cube = cubic_features(test_pca10)
 
 # TODO: Train your softmax regression model using (train_cube, train_y)
 #       and evaluate its accuracy on (test_cube, test_y).
+theta, cost_function_history = softmax_regression(train_cube, train_y, temp_parameter=1, alpha=0.3, lambda_factor=1.0e-4, k=10, num_iterations=150)
+test_error = compute_test_error(test_cube, test_y, theta, temp_parameter=1)
+
+print('softmax test_error PCA_10/cubic_features=', test_error)
+
+from sklearn.metrics import accuracy_score
+from sklearn.svm import SVC
+
+# Polynomial svm using scikit-learn
+poly_model = SVC(random_state=0, kernel='poly', degree=3)
+poly_model.fit(train_pca10, train_y)
+predictions = poly_model.predict(test_pca10)
+
+test_error = 1-accuracy_score(test_y, predictions)
+print('softmax test_error PCA_10/cubic_features using sklearn=', test_error)
+
+
+
+# RBF svm using scikit-learn
+rbf_model = SVC(random_state=0, kernel='rbf')
+rbf_model.fit(train_pca10, train_y)
+predictions = rbf_model.predict(test_pca10)
+
+test_error = 1-accuracy_score(test_y, predictions)
+print('softmax test_error PCA_10/rbf using sklearn=', test_error)
+
+
